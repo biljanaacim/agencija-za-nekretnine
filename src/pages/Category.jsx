@@ -10,6 +10,7 @@ import ListingItem from '../components/ListingItem'
 const Category = () => {
     const [listings, setListings] = useState()
     const [loading, setLoading] = useState(true)
+    const [lastFetchedListing, setLastFetchedListing] = useState(null)
 
     const params = useParams()
 
@@ -24,21 +25,23 @@ const Category = () => {
                 const q = query(listingsRef, where('type', '==', params.categoryName),
                 orderBy('timestamp', 'desc'),
                 limit(10))
-                console.log(q)
+              
 
                 //execute query
                 const querySnap = await getDocs(q)
-console.log(querySnap, 'jdlas')
-                const listings1 = []
-                console.log(listings1, 'lisr')
 
+                const lastVisible = querySnap.docs[querySnap.docs.length - 1]
+                setLastFetchedListing(lastVisible)
+
+                const listings = []
+                
                 querySnap.forEach((doc)=>{
                     return listings.push({
                         id: doc.id,
                         data: doc.data()
                     })
                 })
-                setListings(listings1)
+                setListings(listings)
                 setLoading(false)
 
             } catch (error) {
@@ -48,11 +51,48 @@ console.log(querySnap, 'jdlas')
         fetchListings()
     }, [params.categoryName])
 
+//pagination - load more
+
+    const onFetchMoreListings  = async () => {
+        try {
+            //get reference
+            const listingsRef = collection(db, 'listings')
+
+
+            // create query
+            const q = query(listingsRef, where('type', '==', params.categoryName),
+            orderBy('timestamp', 'desc'),
+            startAfter(lastFetchedListing),
+            limit(10))
+          
+
+            //execute query
+            const querySnap = await getDocs(q)
+
+            const lastVisible = querySnap.docs[querySnap.docs.length - 1]
+            setLastFetchedListing(lastVisible)
+
+            const listings = []
+            
+            querySnap.forEach((doc)=>{
+                return listings.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            })
+            setListings((prevState)=>[...prevState, ...listings])
+            setLoading(false)
+
+        } catch (error) {
+            toast.error('Ne mogu se preuzeti liste')
+        }
+    }
+
   return (
     <div className='category'>
 <header>
     <p className="pageHeader">
-        {params.categoryName === 'rent' ? 'Mesta za najam' : 'Mesta za prodaju'}
+        {params.categoryName === 'rent' ? 'Nekretnine za najam' : 'Nekretnine za prodaju'}
     </p>
 </header>
 
@@ -64,6 +104,12 @@ console.log(querySnap, 'jdlas')
         ))}
     </ul>
 </main>
+<br />
+<br />
+{lastFetchedListing && (
+    <p className="loadMore" onClick={onFetchMoreListings}>Prikaži više</p>
+)}
+
 </> : <p>Nema liste za {params.categoryName}
 {console.log(listings)}</p>}
 

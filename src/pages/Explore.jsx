@@ -1,7 +1,7 @@
 import {Link} from 'react-router-dom'
 import rentCategoryImage from '../assets/jpg/rentCategoryImage.jpg'
 import sellCategoryImage from '../assets/jpg/sellCategoryImage.jpg'
-
+import Slider from '../components/Slider'
 
 function Explore() {
   return (
@@ -11,7 +11,7 @@ function Explore() {
       </header>
 
       <main>
-        {/*Slider */}
+        <Slider />
 
         <p className="exploreCategoryHeading">
           Kategorije
@@ -20,12 +20,12 @@ function Explore() {
           <Link to='/category/rent'>
             <img src={rentCategoryImage} 
             alt="rent" className='exploreCategoryImg'/>
-          <p className="exploreCategoryName">Mesta za najam</p>
+          <p className="exploreCategoryName">Nekretnine za najam</p>
           </Link>
           <Link to='/category/sale'>
             <img src={sellCategoryImage} 
             alt="sell" className='exploreCategoryImg'/>
-                    <p className="exploreCategoryName">Mesta za prodaju</p>
+                    <p className="exploreCategoryName">Nekretnine za prodaju</p>
           </Link>
         </div>
       </main>
